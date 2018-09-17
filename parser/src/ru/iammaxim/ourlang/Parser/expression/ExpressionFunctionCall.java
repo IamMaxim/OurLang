@@ -1,0 +1,35 @@
+package ru.iammaxim.ourlang.Parser.expression;
+
+
+
+import ru.iammaxim.ourlang.Parser.Token;
+
+import java.util.ArrayList;
+
+/**
+ * Created by maxim on 2/17/17 at 7:34 PM.
+ */
+public class ExpressionFunctionCall extends Expression {
+    public String functionName;
+    public ArrayList<Expression> args;
+
+    public ExpressionFunctionCall(Token functionName, ArrayList<Expression> args) {
+        this.functionName = functionName.token;
+        this.args = args;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("call: ");
+        sb.append(functionName);
+        sb.append("(");
+        for (int i = 0; i < args.size(); i++) {
+            sb.append(args.get(i));
+            if (i < args.size() - 1)
+                sb.append(", ");
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+}
