@@ -1,10 +1,9 @@
 package ru.iammaxim.ourlang.compiler;
 
-import ru.iammaxim.ourlang.Parser.ParsedFunction;
-import ru.iammaxim.ourlang.Parser.Variable;
+import ru.iammaxim.ourlang.parser.ParsedFunction;
+import ru.iammaxim.ourlang.parser.Variable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Function {
     public String name;

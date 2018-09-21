@@ -1,9 +1,9 @@
 package ru.iammaxim.ourlang.compiler;
 
-import ru.iammaxim.ourlang.Parser.InvalidTokenException;
-import ru.iammaxim.ourlang.Parser.ParsedFunction;
-import ru.iammaxim.ourlang.Parser.Token;
-import ru.iammaxim.ourlang.Parser.expression.*;
+import ru.iammaxim.ourlang.parser.InvalidTokenException;
+import ru.iammaxim.ourlang.parser.ParsedFunction;
+import ru.iammaxim.ourlang.parser.Token;
+import ru.iammaxim.ourlang.parser.expression.*;
 
 import java.util.ArrayList;
 

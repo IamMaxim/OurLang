@@ -1,9 +1,9 @@
-package ru.iammaxim.ourlang.Parser.value;
+package ru.iammaxim.ourlang.parser.value;
 
-import ru.iammaxim.ourlang.Parser.InvalidTokenException;
-import ru.iammaxim.ourlang.Parser.type.Type;
-import ru.iammaxim.ourlang.Parser.type.TypeInt;
-import ru.iammaxim.ourlang.Parser.type.TypeVoid;
+import ru.iammaxim.ourlang.parser.InvalidTokenException;
+import ru.iammaxim.ourlang.parser.type.Type;
+import ru.iammaxim.ourlang.parser.type.TypeInt;
+import ru.iammaxim.ourlang.parser.type.TypeVoid;
 
 public class Value {
     public String value;

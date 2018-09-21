@@ -1,7 +1,7 @@
 package ru.iammaxim.ourlang.compiler;
 
 import ru.iammaxim.ourlang.Logger;
-import ru.iammaxim.ourlang.Parser.*;
+import ru.iammaxim.ourlang.parser.*;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

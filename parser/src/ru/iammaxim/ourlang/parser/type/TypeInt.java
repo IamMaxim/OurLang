@@ -1,4 +1,4 @@
-package ru.iammaxim.ourlang.Parser.type;
+package ru.iammaxim.ourlang.parser.type;
 
 /**
  * int is 16-bit numeric value

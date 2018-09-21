@@ -1,4 +1,4 @@
-package ru.iammaxim.ourlang.Parser.type;
+package ru.iammaxim.ourlang.parser.type;
 
 public abstract class Type {
     public abstract int getSize();

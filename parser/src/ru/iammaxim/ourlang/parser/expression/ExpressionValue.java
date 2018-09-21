@@ -1,8 +1,7 @@
-package ru.iammaxim.ourlang.Parser.expression;
+package ru.iammaxim.ourlang.parser.expression;
 
-import ru.iammaxim.ourlang.Parser.InvalidTokenException;
-import ru.iammaxim.ourlang.Parser.Variable;
-import ru.iammaxim.ourlang.Parser.value.Value;
+import ru.iammaxim.ourlang.parser.InvalidTokenException;
+import ru.iammaxim.ourlang.parser.value.Value;
 
 /**
  * Created by maxim on 2/17/17 at 7:36 PM.

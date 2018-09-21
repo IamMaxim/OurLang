@@ -1,6 +1,6 @@
-package ru.iammaxim.ourlang.Parser.expression;
+package ru.iammaxim.ourlang.parser.expression;
 
-import ru.iammaxim.ourlang.Parser.type.Type;
+import ru.iammaxim.ourlang.parser.type.Type;
 
 public class ExpressionVarDeclaration extends Expression {
     public Type type;

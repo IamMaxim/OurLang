@@ -1,4 +1,4 @@
-package ru.iammaxim.ourlang.Parser;
+package ru.iammaxim.ourlang.parser;
 
 import java.util.ArrayList;
 import java.util.Arrays;

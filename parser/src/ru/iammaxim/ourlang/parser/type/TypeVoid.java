@@ -1,4 +1,4 @@
-package ru.iammaxim.ourlang.Parser.type;
+package ru.iammaxim.ourlang.parser.type;
 
 public class TypeVoid extends Type {
     @Override

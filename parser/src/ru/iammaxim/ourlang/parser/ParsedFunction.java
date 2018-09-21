@@ -1,8 +1,8 @@
-package ru.iammaxim.ourlang.Parser;
+package ru.iammaxim.ourlang.parser;
 
 
-import ru.iammaxim.ourlang.Parser.expression.Expression;
-import ru.iammaxim.ourlang.Parser.type.Type;
+import ru.iammaxim.ourlang.parser.expression.Expression;
+import ru.iammaxim.ourlang.parser.type.Type;
 
 import java.util.ArrayList;
 

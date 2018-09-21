@@ -1,11 +1,11 @@
-package ru.iammaxim.ourlang.Parser;
+package ru.iammaxim.ourlang.parser;
 
 import ru.iammaxim.ourlang.Logger;
-import ru.iammaxim.ourlang.Parser.expression.*;
-import ru.iammaxim.ourlang.Parser.type.Type;
-import ru.iammaxim.ourlang.Parser.type.TypeInt;
-import ru.iammaxim.ourlang.Parser.type.TypeVoid;
-import ru.iammaxim.ourlang.Parser.value.Value;
+import ru.iammaxim.ourlang.parser.expression.*;
+import ru.iammaxim.ourlang.parser.type.Type;
+import ru.iammaxim.ourlang.parser.type.TypeInt;
+import ru.iammaxim.ourlang.parser.type.TypeVoid;
+import ru.iammaxim.ourlang.parser.value.Value;
 
 import java.util.ArrayList;
 

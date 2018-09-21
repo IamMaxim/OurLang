@@ -1,4 +1,4 @@
-package ru.iammaxim.ourlang.Parser.expression;
+package ru.iammaxim.ourlang.parser.expression;
 
 /**
  * Created by maxim on 2/18/17 at 8:09 PM.
