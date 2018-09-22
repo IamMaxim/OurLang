@@ -1,5 +1,8 @@
 package ru.iammaxim.ourlang.compiler;
 
+import ru.iammaxim.ourlang.Operation;
+import ru.iammaxim.ourlang.OperationCode;
+
 import java.util.ArrayList;
 
 public class ProgramPrinter {
@@ -86,6 +89,9 @@ public class ProgramPrinter {
                 break;
             case OperationCode.GRE:
                 println(formatOperationAddress(addr) + "gre    ");
+                break;
+            case OperationCode.PUTB:
+                println(formatOperationAddress(addr) + "putb   " + formatValue(operation.data));
                 break;
             case OperationCode.PUTW:
                 println(formatOperationAddress(addr) + "putw   " + formatValue(operation.data));

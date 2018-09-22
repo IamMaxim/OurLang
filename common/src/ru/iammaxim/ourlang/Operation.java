@@ -1,4 +1,4 @@
-package ru.iammaxim.ourlang.compiler;
+package ru.iammaxim.ourlang;
 
 public class Operation {
     public int code; // 6-bit code of operation

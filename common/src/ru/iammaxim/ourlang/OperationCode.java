@@ -1,4 +1,4 @@
-package ru.iammaxim.ourlang.compiler;
+package ru.iammaxim.ourlang;
 
 public class OperationCode {
     public static final int ADD = 0;
@@ -18,11 +18,12 @@ public class OperationCode {
     public static final int LEE = 14;
     public static final int GR = 15;
     public static final int GRE = 16;
-    public static final int PUTW = 17;
-    public static final int POP = 18;
-    public static final int SB = 19;
-    public static final int SW = 20;
-    public static final int LB = 21;
-    public static final int LW = 22;
-    public static final int PUTARA = 23;
+    public static final int PUTB = 17;
+    public static final int PUTW = 18;
+    public static final int POP = 19;
+    public static final int SB = 20;
+    public static final int SW = 21;
+    public static final int LB = 22;
+    public static final int LW = 23;
+    public static final int PUTARA = 24;
 }

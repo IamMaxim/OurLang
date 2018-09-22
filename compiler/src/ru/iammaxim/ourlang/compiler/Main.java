@@ -5,11 +5,13 @@ import ru.iammaxim.ourlang.parser.*;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws FileNotFoundException, InvalidTokenException, VariableAlreadyDeclaredException {
+    public static void main(String[] args) throws IOException, InvalidTokenException, VariableAlreadyDeclaredException {
         Logger logger = new Logger("log.txt");
 
         Scanner scanner = new Scanner(new FileInputStream("src.ol")).useDelimiter("\\A");
@@ -29,5 +31,9 @@ public class Main {
         Program program = compiler.compile(funcs);
 
         ProgramPrinter.print(program);
+
+        System.out.println("Writing to file \"src.olbc\"...");
+        FileOutputStream fos = new FileOutputStream("src.olbc");
+        ProgramWriter.write(fos, program);
     }
 }

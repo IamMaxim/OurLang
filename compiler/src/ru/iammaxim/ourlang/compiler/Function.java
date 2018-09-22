@@ -1,5 +1,6 @@
 package ru.iammaxim.ourlang.compiler;
 
+import ru.iammaxim.ourlang.Operation;
 import ru.iammaxim.ourlang.parser.ParsedFunction;
 import ru.iammaxim.ourlang.parser.Variable;
 

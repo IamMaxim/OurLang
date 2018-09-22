@@ -1,2 +1,4 @@
 rootProject.name = 'OurLang'
 include ':common', ':compiler', ':parser'
+include 'interpreter'
+

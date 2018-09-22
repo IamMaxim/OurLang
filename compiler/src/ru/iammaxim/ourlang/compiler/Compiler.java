@@ -1,5 +1,7 @@
 package ru.iammaxim.ourlang.compiler;
 
+import ru.iammaxim.ourlang.Operation;
+import ru.iammaxim.ourlang.OperationCode;
 import ru.iammaxim.ourlang.Logger;
 import ru.iammaxim.ourlang.parser.InvalidTokenException;
 import ru.iammaxim.ourlang.parser.ParsedFunction;

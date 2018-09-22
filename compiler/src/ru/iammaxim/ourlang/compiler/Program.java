@@ -12,6 +12,8 @@ public class Program {
     public ArrayList<Integer> functionOffsets = new ArrayList<>();
     // comments that can be used while debugging
     public HashMap<Integer, ArrayList<String>> comments = new HashMap<>();
+    // the first operation of a program is a jump to main function
+    public int offset = 4;
 
     /**
      * @param f function to get offset for
@@ -22,10 +24,10 @@ public class Program {
     }
 
     public void addFunction(Function f) {
-        if (functions.size() > 0)
-            functionOffsets.add(functionOffsets.get(functionOffsets.size() - 1) + functions.get(functions.size() - 1).getOperationCount());
-        else
-            functionOffsets.add(0);
+        // write offset for new function
+        functionOffsets.add(offset);
+        // add new function's size to offset
+        offset += f.getOperationCount();
 
         functions.add(f);
         functionMap.put(f.name, f);
