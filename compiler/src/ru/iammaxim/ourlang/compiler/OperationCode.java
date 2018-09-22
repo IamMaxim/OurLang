@@ -24,4 +24,5 @@ public class OperationCode {
     public static final int SW = 20;
     public static final int LB = 21;
     public static final int LW = 22;
+    public static final int PUTARA = 23;
 }

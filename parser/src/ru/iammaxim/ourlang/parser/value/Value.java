@@ -2,6 +2,7 @@ package ru.iammaxim.ourlang.parser.value;
 
 import ru.iammaxim.ourlang.parser.InvalidTokenException;
 import ru.iammaxim.ourlang.parser.type.Type;
+import ru.iammaxim.ourlang.parser.type.TypeIdentifier;
 import ru.iammaxim.ourlang.parser.type.TypeInt;
 import ru.iammaxim.ourlang.parser.type.TypeVoid;
 
@@ -25,7 +26,8 @@ public class Value {
         else if (TypeVoid.isValid(value))
             return new TypeVoid();
         else
-            throw new InvalidTokenException("Unknown type for value '" + value + "'");
+            return new TypeIdentifier();
+//            throw new InvalidTokenException("Unknown type for value '" + value + "'");
     }
 
     public int getValue() {

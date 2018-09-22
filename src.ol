@@ -9,13 +9,14 @@ function func1(int arg1, int arg2): int {
 //    var s: int;
 //    s = "sdfsdf";
 
-    return 12235436;
+    return 123;
 }
 
 function main() {
     var i: int;
 
-    i = func1();
+    // i = func1();
+    i = 0;
 
     if (i == 0) {
         i = 1;

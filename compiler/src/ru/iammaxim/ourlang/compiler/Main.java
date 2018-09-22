@@ -25,7 +25,7 @@ public class Main {
 
         System.out.println("Parsing completed.");
 
-        Compiler compiler = new Compiler();
+        Compiler compiler = new Compiler(logger);
         Program program = compiler.compile(funcs);
 
         ProgramPrinter.print(program);

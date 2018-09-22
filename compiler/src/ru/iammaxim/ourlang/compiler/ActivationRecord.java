@@ -6,6 +6,7 @@ import java.util.HashMap;
 public class ActivationRecord {
     public int returnValueSize;
     private HashMap<String, Integer> localVarOffsets = new HashMap<>();
+    private HashMap<String, Integer> localVarSizes = new HashMap<>();
     // 32 bits for return address
     // and 32 bits for previous activation record are already reserved
     public int totalARsize = 8;
@@ -31,6 +32,7 @@ public class ActivationRecord {
         if (localVarOffsets.containsKey(name))
             throw new VariableAlreadyDeclaredException("Variable '" + name + "' is already defined in this scope");
 
+        localVarSizes.put(name, size);
         localVarOffsets.put(name, totalARsize);
         totalARsize += size;
     }
@@ -43,10 +45,18 @@ public class ActivationRecord {
     }
 
     /**
-     * @param name name if the variable
+     * @param name name of the variable
      * @return offset of the variable relative to AR start
      */
     public int getVarOffset(String name) {
         return localVarOffsets.get(name);
+    }
+
+    /**
+     * @param name name of the variable
+     * @return size of requested variable
+     */
+    public int getVarSize(String name) {
+        return localVarSizes.get(name);
     }
 }
