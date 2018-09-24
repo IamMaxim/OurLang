@@ -26,4 +26,13 @@ public class OperationCode {
     public static final int LB = 22;
     public static final int LW = 23;
     public static final int PUTARA = 24;
+    public static final int PUTOPA = 25;
+    public static final int POPARA = 26;
+    public static final int POPOPA = 27;
+    public static final int STOP = 28;
+    public static final int PUTSP = 29;
+
+    // debug interpreter-only instructions
+    public static final int PRINTBYTE = 62;
+    public static final int PRINTWORD = 63;
 }

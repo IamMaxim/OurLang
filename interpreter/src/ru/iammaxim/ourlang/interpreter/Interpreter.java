@@ -3,6 +3,8 @@ package ru.iammaxim.ourlang.interpreter;
 import ru.iammaxim.ourlang.Operation;
 import ru.iammaxim.ourlang.OperationCode;
 import ru.iammaxim.ourlang.interpreter.instructions.*;
+import ru.iammaxim.ourlang.interpreter.instructions.debug.InstructionPrintbyte;
+import ru.iammaxim.ourlang.interpreter.instructions.debug.InstructionPrintword;
 
 import java.util.HashMap;
 
@@ -15,6 +17,10 @@ public class Interpreter {
     private static int arPointer = 0;
 
     public static HashMap<Integer, Instruction> instructions = new HashMap<>();
+
+    private static boolean needToRun = true;
+
+    public static final boolean debugInstructions = false;
 
     public static void initInstructions() {
         instructions.put(OperationCode.ADD, new InstructionAdd());
@@ -42,25 +48,151 @@ public class Interpreter {
         instructions.put(OperationCode.LB, new InstructionLb());
         instructions.put(OperationCode.LW, new InstructionLw());
         instructions.put(OperationCode.PUTARA, new InstructionPutara());
+        instructions.put(OperationCode.PUTOPA, new InstructionPutopa());
+        instructions.put(OperationCode.POPARA, new InstructionPopara());
+        instructions.put(OperationCode.POPOPA, new InstructionPopopa());
+        instructions.put(OperationCode.STOP, new InstructionStop());
+        instructions.put(OperationCode.PUTSP, new InstructionPutsp());
 
+
+        instructions.put(OperationCode.PRINTBYTE, new InstructionPrintbyte());
+        instructions.put(OperationCode.PRINTWORD, new InstructionPrintword());
+
+    }
+
+    private static HashMap<Integer, String> instructionNames = new HashMap<>();
+
+    static {
+        instructionNames.put(OperationCode.ADD, "ADD");
+        instructionNames.put(OperationCode.SUB, "SUB");
+        instructionNames.put(OperationCode.MUL, "MUL");
+        instructionNames.put(OperationCode.DIV, "DIV");
+        instructionNames.put(OperationCode.AND, "AND");
+        instructionNames.put(OperationCode.OR, "OR");
+        instructionNames.put(OperationCode.XOR, "XOR");
+        instructionNames.put(OperationCode.NOT, "NOT");
+        instructionNames.put(OperationCode.JMP, "JMP");
+        instructionNames.put(OperationCode.JIF, "JIF");
+        instructionNames.put(OperationCode.INC, "INC");
+        instructionNames.put(OperationCode.DEC, "DEC");
+        instructionNames.put(OperationCode.EQ, "EQ");
+        instructionNames.put(OperationCode.LE, "LE");
+        instructionNames.put(OperationCode.LEE, "LEE");
+        instructionNames.put(OperationCode.GR, "GR");
+        instructionNames.put(OperationCode.GRE, "GRE");
+        instructionNames.put(OperationCode.PUTB, "PUTB");
+        instructionNames.put(OperationCode.PUTW, "PUTW");
+        instructionNames.put(OperationCode.POP, "POP");
+        instructionNames.put(OperationCode.SB, "SB");
+        instructionNames.put(OperationCode.SW, "SW");
+        instructionNames.put(OperationCode.LB, "LB");
+        instructionNames.put(OperationCode.LW, "LW");
+        instructionNames.put(OperationCode.PUTARA, "PUTARA");
+        instructionNames.put(OperationCode.PUTOPA, "PUTOPA");
+        instructionNames.put(OperationCode.POPARA, "POPARA");
+        instructionNames.put(OperationCode.POPOPA, "POPOPA");
+        instructionNames.put(OperationCode.STOP, "STOP");
+        instructionNames.put(OperationCode.PUTSP, "PUTSP");
+
+        instructionNames.put(OperationCode.PRINTBYTE, "PRINTBYTE");
+        instructionNames.put(OperationCode.PRINTWORD, "PRINTWORD");
     }
 
     public static void start(byte[] program) {
         if (program.length > ops.length * 4)
             throw new IllegalArgumentException("Too big program, can't fit it to RAM");
 
+        initInstructions();
+
+        int offset = 0;
+
         for (int i = 0; i < program.length; i += 4) {
             int op = program[i] << 24 | program[i + 1] << 16 | program[i + 2] << 8 | program[i + 3];
             ops[i / 4] = op;
+
+            Operation oper = Operation.fromBinaryCode(op);
+//            System.out.println(offset + " " + instructionNames.get(oper.code) + " " + oper.data);
+            offset += 1;
         }
 
-        while (true) {
+        while (needToRun) {
             int op = ops[opPointer];
             Operation operation = Operation.fromBinaryCode(op);
+
+            if (debugInstructions)
+                System.out.println("executing " + opPointer + ": " + instructionNames.get(operation.code) + " " + operation.data);
 
             instructions.get(operation.code).execute(operation.data);
 
             opPointer++;
         }
+    }
+
+    public static int popWordFromStack() {
+        int result = stack[stackPointer - 2] << 8 | stack[stackPointer - 1];
+        stackPointer -= 2;
+        return result;
+    }
+
+    public static void putWordIntoStack(int word) {
+        stack[stackPointer] = (byte) ((word >> 8) & 0xff);
+        stack[stackPointer + 1] = (byte) ((word) & 0xff);
+        stackPointer += 2;
+    }
+
+    public static void setOperationPointer(int address) {
+        opPointer = address;
+    }
+
+    public static int getByteByAddress(int address) {
+        return stack[address];
+    }
+
+    public static int getWordByAddress(int address) {
+        return stack[address] << 8 | stack[address + 1];
+    }
+
+    public static void putByteIntoStack(int b) {
+        stack[stackPointer] = (byte) b;
+        stackPointer++;
+    }
+
+    public static void moveStackPointerBackBy(int offset) {
+        stackPointer -= offset;
+    }
+
+    public static void setActivationRecordAddress(int address) {
+        arPointer = address;
+    }
+
+    public static int getActivationRecordAddress() {
+        return arPointer;
+    }
+
+    public static int getCurrentOperationAddress() {
+        return opPointer;
+    }
+
+    public static int popByteFromStack() {
+        int result = stack[stackPointer - 1];
+        stackPointer -= 1;
+        return result;
+    }
+
+    public static void writeByteToAddress(int value, int address) {
+        stack[address] = (byte) value;
+    }
+
+    public static void writeWordToAddress(int value, int address) {
+        stack[address] = (byte) (value >> 8);
+        stack[address + 1] = (byte) (value & 0xff);
+    }
+
+    public static void stop() {
+        needToRun = false;
+    }
+
+    public static int getStackPointer() {
+        return stackPointer;
     }
 }

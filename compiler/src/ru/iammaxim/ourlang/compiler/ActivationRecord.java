@@ -1,5 +1,8 @@
 package ru.iammaxim.ourlang.compiler;
 
+import ru.iammaxim.ourlang.parser.Variable;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -7,9 +10,9 @@ public class ActivationRecord {
     public int returnValueSize;
     private HashMap<String, Integer> localVarOffsets = new HashMap<>();
     private HashMap<String, Integer> localVarSizes = new HashMap<>();
-    // 32 bits for return address
-    // and 32 bits for previous activation record are already reserved
-    public int totalARsize = 8;
+    // 16 bits for return address
+    // and 16 bits for previous activation record are already reserved
+    public int totalARsize = 4;
 
     public ActivationRecord(int returnValueSize) {
         this.returnValueSize = returnValueSize;
@@ -41,7 +44,7 @@ public class ActivationRecord {
      * @return offset of return value relative to start of activation record
      */
     public int getReturnValueOffset() {
-        return 8;
+        return 0;
     }
 
     /**

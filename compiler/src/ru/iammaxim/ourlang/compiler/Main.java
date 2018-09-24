@@ -17,6 +17,12 @@ public class Main {
         Scanner scanner = new Scanner(new FileInputStream("src.ol")).useDelimiter("\\A");
         String src = scanner.next();
 
+        // append call of main function
+        src = src +
+                "\n\nfunction __main__() {\n" +
+                "    main();\n" +
+                "}\n";
+
         ArrayList<Token> tokens = Lexer.lex(src);
 
         System.out.println(tokens);

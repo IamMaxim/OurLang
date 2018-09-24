@@ -1,8 +1,8 @@
 package ru.iammaxim.ourlang.compiler;
 
+import ru.iammaxim.ourlang.Logger;
 import ru.iammaxim.ourlang.Operation;
 import ru.iammaxim.ourlang.OperationCode;
-import ru.iammaxim.ourlang.Logger;
 import ru.iammaxim.ourlang.parser.InvalidTokenException;
 import ru.iammaxim.ourlang.parser.ParsedFunction;
 import ru.iammaxim.ourlang.parser.expression.*;
@@ -13,6 +13,8 @@ import java.util.ArrayList;
 public class Compiler {
     Program program = new Program();
     private Logger logger;
+
+    private static final boolean DEBUG = true;
 
     public Compiler(Logger logger) {
         this.logger = logger;
@@ -34,6 +36,13 @@ public class Compiler {
                 logger.log("compiling > " + expression);
                 compileStatement(f, expression);
             }
+
+            // return control to caller of stop execution of program, if we reached end of __main__
+            if (f.name.equals("__main__"))
+                f.addOperation(new Operation(OperationCode.STOP, 0));
+            else
+                compileControlReturn(f);
+
             logger.decreaseIndent();
         }
 
@@ -97,32 +106,23 @@ public class Compiler {
             throw new InvalidTokenException("For loop is not implemented yet!");
         } else if (expression instanceof ExpressionFunctionCall) {
             ExpressionFunctionCall exp = (ExpressionFunctionCall) expression;
+            // compile call
+            compileFunctionCall(f, exp);
 
-            Function toCall = program.getFunction(exp.functionName);
+            Function callee = program.getFunction(exp.functionName);
 
-            if (toCall == null) {
-                throw new InvalidTokenException("Function '" + exp.functionName + "' is not declared");
+            if (callee.activationRecord.returnValueSize > 0) {
+                // pop return value of a function, since we won't use it
+                f.addOperation(new Operation(OperationCode.POP, callee.activationRecord.returnValueSize));
             }
-
-            ActivationRecord ar = toCall.activationRecord;
-
-            // TODO: put activation record into the stack here
-
-            // TODO: pass control to the callee
-
-            // TODO: if return type in non-void, read the return value and put it into stack
-            // this can be done by simply omitting the rest of the activation record, since return value is in
-            // the very beginning. Just move stack pointer to the end of return value.
-
-            throw new InvalidTokenException("Function Call is not implemented yet!");
         } else if (expression instanceof ExpressionReturn) {
             ExpressionReturn exp = (ExpressionReturn) expression;
 
             // compile address to store return value
             program.addComment("Return value address");
             f.addOperation(new Operation(OperationCode.PUTARA, 0));
-            f.addOperation(new Operation(OperationCode.PUTW, f.activationRecord.getReturnValueOffset()));
-            f.addOperation(new Operation(OperationCode.ADD, 0));
+//            f.addOperation(new Operation(OperationCode.PUTW, f.activationRecord.getReturnValueOffset()));
+//            f.addOperation(new Operation(OperationCode.ADD, 0));
 
             // compile expression that will generate return value
             program.addComment("Return value");
@@ -132,6 +132,10 @@ public class Compiler {
             program.addComment("Move return value from stack to activation record");
             f.addOperation(new Operation(OperationCode.SW, 0));
             program.addComment("End of return");
+
+            // return control to caller
+            compileControlReturn(f);
+
         } else if (expression instanceof ExpressionTree) {
             ExpressionTree exp = (ExpressionTree) expression;
 
@@ -145,9 +149,17 @@ public class Compiler {
             program.addComment("Tree");
             compileTree(f, exp);
             program.addComment("Tree end");
-            // pop the last pushed value, since we are out of tree and not about to use it.
-            program.addComment("Pop tree's return value from stack, since it won't be used");
-            f.addOperation(new Operation(OperationCode.POP, f.activationRecord.getVarSize(((ExpressionValue) exp.left).value.value)));
+
+//            if (((ExpressionValue) exp.left).value.getType() instanceof TypeIdentifier) {
+//                 pop the last pushed value, since we are out of tree and not about to use it.
+//                program.addComment("Pop tree's return value from stack, since it won't be used");
+//                f.addOperation(new Operation(OperationCode.POP, f.activationRecord.getVarSize(((ExpressionValue) exp.left).value.value)));
+            /*} else*/
+            if (((ExpressionValue) exp.left).getSize() > 0 || ((ExpressionValue) exp.left).value.getType() instanceof TypeIdentifier) {
+                // pop the last pushed value, since we are out of tree and not about to use it.
+                program.addComment("Pop tree's return value from stack, since it won't be used");
+                f.addOperation(new Operation(OperationCode.POP, f.activationRecord.getVarSize(((ExpressionValue) exp.left).value.value)));
+            }
         } else if (expression instanceof ExpressionValue) {
             throw new InvalidTokenException("Not a statement");
         } else if (expression instanceof ExpressionValueAt) {
@@ -196,13 +208,97 @@ public class Compiler {
             compileTree(f, exp);
         } else if (expression instanceof ExpressionFunctionCall) {
             ExpressionFunctionCall exp = (ExpressionFunctionCall) expression;
-            // TODO: implement this
+            compileFunctionCall(f, exp);
         } else
             throw new InvalidTokenException("Unexpected " + expression.getClass().getSimpleName() + " while compiling expression");
     }
 
-    private void compileFunctionCall() throws InvalidTokenException {
-        throw new InvalidTokenException("Function call is not implemented yet");
+    private void compileFunctionCall(Function f, ExpressionFunctionCall exp) throws InvalidTokenException {
+        Function toCall = program.getFunction(exp.functionName);
+
+        if (toCall == null) {
+            throw new InvalidTokenException("Function '" + exp.functionName + "' is not declared");
+        }
+
+        ActivationRecord ar = toCall.activationRecord;
+
+        program.addComment("Function '" + toCall.name + "' call");
+
+        if (ar.returnValueSize == 0)
+            program.addComment("Void return type, no space for return value needed");
+        else
+            program.addComment("Allocate space for return value");
+
+        if (ar.returnValueSize == 0) {
+            // do nothing
+        } else if (ar.returnValueSize == 1) {
+            f.addOperation(new Operation(OperationCode.PUTB, 0));
+        } else if (ar.returnValueSize == 2) {
+            f.addOperation(new Operation(OperationCode.PUTW, 0));
+        }
+
+        // put return address
+        program.addComment("Save return address");
+        // calculate the end of call later
+        Operation returnAddressOperation = new Operation(OperationCode.PUTW, 0);
+        f.addOperation(returnAddressOperation);
+
+        /*
+        // put current activation record address
+        program.addComment("Save current activation record address");
+        f.addOperation(new Operation(OperationCode.PUTSP, 0));
+        // return value size and return address
+        f.addOperation(new Operation(OperationCode.PUTW, ar.returnValueSize + 2));
+        f.addOperation(new Operation(OperationCode.SUB, 0));
+*/
+
+        program.addComment("Save current activation record address");
+        f.addOperation(new Operation(OperationCode.PUTARA, 0));
+
+        program.addComment("Allocate space for local variables");
+        // allocate activation record
+        // first, allocate maximum allowed memory with 16-bit calls
+        for (int i = 4 + ar.returnValueSize; i < ar.totalARsize; i += 2) {
+            f.addOperation(new Operation(OperationCode.PUTW, 0));
+        }
+        // if we have non-16-bit-multiple size of AR, allocate 8 bit which are left
+        if (ar.totalARsize % 2 == 1)
+            f.addOperation(new Operation(OperationCode.PUTB, 0));
+
+        // TODO: copy actual arguments to activation record
+
+
+        // Update activation record pointer
+        f.addOperation(new Operation(OperationCode.PUTSP, 0));
+        f.addOperation(new Operation(OperationCode.PUTW, ar.totalARsize));
+        f.addOperation(new Operation(OperationCode.SUB, 0));
+        f.addOperation(new Operation(OperationCode.POPARA, 0));
+
+        // subtract 1 from address since operation pointer will be incremented after instruction end
+        program.addComment("Call of the '" + toCall.name + "'");
+        f.addOperation(new Operation(OperationCode.JMP, program.getFunctionOffset(toCall) - 1));
+
+        // now, we can update return address
+        // -1 because after instruction end operation pointer will increment
+        returnAddressOperation.data = program.getFunctionOffset(f) + f.getOperationCount() - 1;
+
+        // we still have our return value left in stack after callee's activation record self-cleanup.
+    }
+
+    private void compileControlReturn(Function f) {
+        ActivationRecord ar = f.activationRecord;
+
+        program.addComment("Return control to caller");
+
+        // remove all local variables from stack
+        program.addComment("Cleanup local variables from stack");
+        f.addOperation(new Operation(OperationCode.POP, ar.totalARsize - 4 - ar.returnValueSize));
+        // restore activation record pointer
+        program.addComment("Restore activation record address");
+        f.addOperation(new Operation(OperationCode.POPARA, 0));
+        // return control to caller
+        program.addComment("Restore operation pointer");
+        f.addOperation(new Operation(OperationCode.POPOPA, 0));
     }
 
     /**
@@ -250,18 +346,35 @@ public class Compiler {
                     throw new InvalidTokenException("Expected identifier on left side of '='");
 
                 String varName = ((ExpressionValue) expression.left).value.value;
-                int offset = f.activationRecord.getVarOffset(varName);
+                int varOffset = f.activationRecord.getVarOffset(varName);
+
+                program.addComment("Assignment");
 
                 // compile address
+                program.addComment("Left side (address to write to)");
                 f.addOperation(new Operation(OperationCode.PUTARA, 0));
-                f.addOperation(new Operation(OperationCode.PUTW, offset));
+                f.addOperation(new Operation(OperationCode.PUTW, varOffset));
                 f.addOperation(new Operation(OperationCode.ADD, 0));
 
                 // compile value
+                program.addComment("Right side");
                 compileExpression(f, expression.right);
 
                 // store value at the compiled address
+                program.addComment("Write right side value from stack to left side");
                 f.addOperation(new Operation(OperationCode.SW, 0));
+
+                program.addComment("Load result back to stack so the tree parent can use it");
+                f.addOperation(new Operation(OperationCode.PUTARA, 0));
+                f.addOperation(new Operation(OperationCode.PUTW, varOffset));
+                f.addOperation(new Operation(OperationCode.ADD, 0));
+                f.addOperation(new Operation(OperationCode.LW, 0));
+
+                f.addOperation(new Operation(OperationCode.PUTARA, 0));
+                f.addOperation(new Operation(OperationCode.PUTW, varOffset));
+                f.addOperation(new Operation(OperationCode.ADD, 0));
+                f.addOperation(new Operation(OperationCode.LW, 0));
+                f.addOperation(new Operation(OperationCode.PRINTWORD, 0));
 
                 break;
             }

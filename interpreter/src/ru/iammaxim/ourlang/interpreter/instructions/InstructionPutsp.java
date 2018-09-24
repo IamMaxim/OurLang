@@ -2,12 +2,12 @@ package ru.iammaxim.ourlang.interpreter.instructions;
 
 import ru.iammaxim.ourlang.interpreter.Interpreter;
 
-public class InstructionPutw extends Instruction {
+public class InstructionPutsp extends Instruction {
     @Override
     public void execute(int data) {
         if (Interpreter.debugInstructions)
-            System.out.println("> putw " + data);
+            System.out.println("> putsp " + Interpreter.getStackPointer());
 
-        Interpreter.putWordIntoStack(data);
+        Interpreter.putWordIntoStack(Interpreter.getStackPointer());
     }
 }

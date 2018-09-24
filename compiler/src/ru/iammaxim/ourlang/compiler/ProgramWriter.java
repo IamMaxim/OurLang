@@ -8,13 +8,13 @@ import java.io.OutputStream;
 
 public class ProgramWriter {
     public static void write(OutputStream os, Program program) throws IOException {
-        // get the main function
-        Function mainFunction = program.getFunction("main");
-        if (mainFunction == null) {
-            throw new IllegalStateException("You have not declared function main(), can't compile program");
-        }
+        // get the auto-generated __main__ function
+        // this wrapper is needed to put the real main() activation record into stack
+        Function mainFunction = program.getFunction("__main__");
+
         // write jump to a main function
-        Operation jumpToMain = new Operation(OperationCode.JMP, program.getFunctionOffset(mainFunction));
+        // subtract 1 from address since operation pointer will be incremented after instruction end
+        Operation jumpToMain = new Operation(OperationCode.JMP, program.getFunctionOffset(mainFunction) - 1);
         writeOperation(os, jumpToMain.toBinaryCode());
 
         for (Function function : program.functions) {

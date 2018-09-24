@@ -97,7 +97,7 @@ public class ProgramPrinter {
                 println(formatOperationAddress(addr) + "putw   " + formatValue(operation.data));
                 break;
             case OperationCode.POP:
-                println(formatOperationAddress(addr) + "pop    ");
+                println(formatOperationAddress(addr) + "pop    " + formatValue(operation.data));
                 break;
             case OperationCode.SB:
                 println(formatOperationAddress(addr) + "sb     ");
@@ -113,6 +113,33 @@ public class ProgramPrinter {
                 break;
             case OperationCode.PUTARA:
                 println(formatOperationAddress(addr) + "putara ");
+                break;
+            case OperationCode.PUTOPA:
+                println(formatOperationAddress(addr) + "putopa ");
+                break;
+            case OperationCode.POPARA:
+                println(formatOperationAddress(addr) + "popara ");
+                break;
+            case OperationCode.POPOPA:
+                println(formatOperationAddress(addr) + "popopa ");
+                break;
+            case OperationCode.STOP:
+                println(formatOperationAddress(addr) + "stop   ");
+                break;
+            case OperationCode.PUTSP:
+                println(formatOperationAddress(addr) + "putsp  ");
+                break;
+
+            // debug interpreter-only instructions
+            case OperationCode.PRINTBYTE:
+                println(formatOperationAddress(addr) + "printbyte ");
+                break;
+            case OperationCode.PRINTWORD:
+                println(formatOperationAddress(addr) + "printword ");
+                break;
+
+            default:
+                System.out.println("WARNING!!! COULDN'T FIND OPERATION " + operation.code);
                 break;
         }
     }
