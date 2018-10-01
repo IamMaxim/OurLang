@@ -7,6 +7,6 @@ public class InstructionNot extends Instruction {
     public void execute(int data) {
         int first = Interpreter.popWordFromStack();
 
-        Interpreter.putWordIntoStack(~first);
+        Interpreter.putWordIntoStack(first == 0 ? 1 : 0);
     }
 }

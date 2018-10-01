@@ -7,6 +7,9 @@ public class InstructionJif extends Instruction {
     public void execute(int data) {
         int first = Interpreter.popWordFromStack();
 
+        if (Interpreter.debugInstructionsState)
+            System.out.println("jif > " + first);
+
         if (first != 0)
             Interpreter.setOperationPointer(data);
     }

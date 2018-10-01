@@ -109,11 +109,15 @@ public class Compiler {
             // compile call
             compileFunctionCall(f, exp);
 
-            Function callee = program.getFunction(exp.functionName);
+            // check if we are not compiling instr(), because in that case we don't have instruction instr() explicitly
+            // declared in the program and will get NullPointerException while trying to access its signature
+            if (!exp.functionName.equals("instr")) {
+                Function callee = program.getFunction(exp.functionName);
 
-            if (callee.activationRecord.returnValueSize > 0) {
-                // pop return value of a function, since we won't use it
-                f.addOperation(new Operation(OperationCode.POP, callee.activationRecord.returnValueSize));
+                if (callee.activationRecord.returnValueSize > 0) {
+                    // pop return value of a function, since we won't use it
+                    f.addOperation(new Operation(OperationCode.POP, callee.activationRecord.returnValueSize));
+                }
             }
         } else if (expression instanceof ExpressionReturn) {
             ExpressionReturn exp = (ExpressionReturn) expression;
@@ -214,6 +218,30 @@ public class Compiler {
     }
 
     private void compileFunctionCall(Function f, ExpressionFunctionCall exp) throws InvalidTokenException {
+        // handle raw instruction insert
+        if (exp.functionName.equals("instr")) {
+            if (exp.args.size() != 2)
+                throw new InvalidTokenException("Expected 2 arguments in instr() call");
+
+            if (!(exp.args.get(0) instanceof ExpressionValue))
+                throw new InvalidTokenException("First argument of instr() call should be instruction name");
+
+            if (!(exp.args.get(1) instanceof ExpressionValue))
+                throw new InvalidTokenException("Second argument of instr() call should be 26-bit int");
+
+            int data;
+            // ensure that second arg is actually an integer number
+            try {
+                data = Integer.parseInt(((ExpressionValue) exp.args.get(1)).value.value);
+            } catch (NumberFormatException e) {
+                throw new InvalidTokenException("Second argument of instr() call should be 26-bit int");
+            }
+
+            f.addOperation(new Operation(OperationCode.getByName(((ExpressionValue) exp.args.get(0)).value.value), data));
+
+            return;
+        }
+
         Function toCall = program.getFunction(exp.functionName);
 
         if (toCall == null) {
@@ -265,8 +293,28 @@ public class Compiler {
         if (ar.totalARsize % 2 == 1)
             f.addOperation(new Operation(OperationCode.PUTB, 0));
 
-        // TODO: copy actual arguments to activation record
+        program.addComment("Put arguments into activation record");
+        // current arg counter
+        int i = 0;
+        int currentArgOffset = f.activationRecord.returnValueSize + 4;
+        for (Expression arg : exp.args) {
+            program.addComment("Put " + toCall.getArguments().get(i) + "'s address");
+            // put new AR start
+            f.addOperation(new Operation(OperationCode.PUTSP, 0));
+            f.addOperation(new Operation(OperationCode.PUTW, toCall.activationRecord.totalARsize));
+            f.addOperation(new Operation(OperationCode.SUB, 0));
 
+            f.addOperation(new Operation(OperationCode.PUTW, toCall.activationRecord.getVarOffset(toCall.getArguments().get(i))));
+            f.addOperation(new Operation(OperationCode.ADD, 0));
+
+            program.addComment("Calculate " + toCall.getArguments().get(i) + "'s value");
+            compileExpression(f, arg);
+            program.addComment("Copy value to address");
+            f.addOperation(new Operation(OperationCode.SW, 0));
+
+            currentArgOffset += toCall.getArgumentSizes().get(i);
+            i++;
+        }
 
         // Update activation record pointer
         f.addOperation(new Operation(OperationCode.PUTSP, 0));
@@ -369,12 +417,6 @@ public class Compiler {
                 f.addOperation(new Operation(OperationCode.PUTW, varOffset));
                 f.addOperation(new Operation(OperationCode.ADD, 0));
                 f.addOperation(new Operation(OperationCode.LW, 0));
-
-                f.addOperation(new Operation(OperationCode.PUTARA, 0));
-                f.addOperation(new Operation(OperationCode.PUTW, varOffset));
-                f.addOperation(new Operation(OperationCode.ADD, 0));
-                f.addOperation(new Operation(OperationCode.LW, 0));
-                f.addOperation(new Operation(OperationCode.PRINTWORD, 0));
 
                 break;
             }

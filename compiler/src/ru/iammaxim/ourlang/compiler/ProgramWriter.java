@@ -25,9 +25,14 @@ public class ProgramWriter {
     }
 
     private static void writeOperation(OutputStream os, int op) throws IOException {
-        os.write((op >> 24) & 0x000000ff);
-        os.write((op >> 16) & 0x000000ff);
-        os.write((op >> 8) & 0x000000ff);
-        os.write((op) & 0x000000ff);
+//        System.out.println("writing " + Integer.toBinaryString(op) + " " +
+//                Integer.toBinaryString((byte) ((op >> 24) & 0xff)) + " " +
+//                Integer.toBinaryString((byte) ((op >> 16) & 0xff)) + " " +
+//                Integer.toBinaryString((byte) ((op >> 8) & 0xff)) + " " +
+//                Integer.toBinaryString(((op) & 0x000000ff)));
+        os.write((byte) ((op >> 24) & 0xff));
+        os.write((byte) ((op >> 16) & 0xff));
+        os.write((byte) ((op >> 8) & 0xff));
+        os.write(((op) & 0xff));
     }
 }

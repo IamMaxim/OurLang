@@ -21,6 +21,7 @@ public class Interpreter {
     private static boolean needToRun = true;
 
     public static final boolean debugInstructions = false;
+    public static final boolean debugInstructionsState = false;
 
     public static void initInstructions() {
         instructions.put(OperationCode.ADD, new InstructionAdd());
@@ -107,11 +108,15 @@ public class Interpreter {
         int offset = 0;
 
         for (int i = 0; i < program.length; i += 4) {
-            int op = program[i] << 24 | program[i + 1] << 16 | program[i + 2] << 8 | program[i + 3];
+            int op = ((program[i] & 0xff) << 24) | ((program[i + 1] & 0xff) << 16) | ((program[i + 2] & 0xff) << 8) | (program[i + 3] & 0xff);
             ops[i / 4] = op;
 
             Operation oper = Operation.fromBinaryCode(op);
-//            System.out.println(offset + " " + instructionNames.get(oper.code) + " " + oper.data);
+            System.out.println(offset + " " + instructionNames.get(oper.code) + " " + oper.data + " | ");
+//                    Integer.toBinaryString((program[i]) & 0xff) + " " +
+//                    Integer.toBinaryString((program[i + 1]) & 0xff) + " " +
+//                    Integer.toBinaryString((program[i + 2]) & 0xff) + " " +
+//                    Integer.toBinaryString((program[i + 3]) & 0xff));
             offset += 1;
         }
 
@@ -129,12 +134,15 @@ public class Interpreter {
     }
 
     public static int popWordFromStack() {
-        int result = stack[stackPointer - 2] << 8 | stack[stackPointer - 1];
+        int result = ((stack[stackPointer - 2] & 0xff) << 8) | (stack[stackPointer - 1] & 0xff);
         stackPointer -= 2;
         return result;
     }
 
     public static void putWordIntoStack(int word) {
+        if (debugInstructionsState)
+            System.out.println("Putting " + word);
+
         stack[stackPointer] = (byte) ((word >> 8) & 0xff);
         stack[stackPointer + 1] = (byte) ((word) & 0xff);
         stackPointer += 2;
@@ -149,7 +157,7 @@ public class Interpreter {
     }
 
     public static int getWordByAddress(int address) {
-        return stack[address] << 8 | stack[address + 1];
+        return ((stack[address] & 0xff) << 8) | (stack[address + 1] & 0xff);
     }
 
     public static void putByteIntoStack(int b) {
@@ -194,5 +202,13 @@ public class Interpreter {
 
     public static int getStackPointer() {
         return stackPointer;
+    }
+
+    public static void printStack() {
+//        ArrayList<Integer> s = new ArrayList<>();
+//        for (int i = 0; i < stackPointer; i += 2) {
+//            s.add(getWordByAddress(i));
+//        }
+//        System.out.println(s);
     }
 }
