@@ -4,7 +4,7 @@
 * Multi-line comments
 */ 
 
-function print(int arg) {
+function print(int value) {
     instr(putara, 0);
     instr(putw, 4);
     instr(add, 0);
@@ -33,6 +33,5 @@ function main() {
     } else {
         i = 2;
     };
-
     print(i);
 }

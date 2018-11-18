@@ -14,6 +14,7 @@ public class Compiler {
     Program program = new Program();
     private Logger logger;
 
+    public static final boolean WRITE_VERILOG_CODE = true;
     private static final boolean DEBUG = true;
 
     public Compiler(Logger logger) {

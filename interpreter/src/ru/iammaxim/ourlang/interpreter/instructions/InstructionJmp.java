@@ -8,6 +8,8 @@ public class InstructionJmp extends Instruction {
         if (Interpreter.debugInstructions)
             System.out.println("jmp > " + data);
 
+        System.out.println("Jumping to " + data);
+
         Interpreter.setOperationPointer(data);
     }
 }

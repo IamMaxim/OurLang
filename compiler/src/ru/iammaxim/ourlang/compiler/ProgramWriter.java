@@ -16,11 +16,23 @@ public class ProgramWriter {
         // subtract 1 from address since operation pointer will be incremented after instruction end
         Operation jumpToMain = new Operation(OperationCode.JMP, program.getFunctionOffset(mainFunction) - 1);
         writeOperation(os, jumpToMain.toBinaryCode());
+        printVerilogInstruction(jumpToMain);
 
         for (Function function : program.functions) {
             for (Operation operation : function.getOperations()) {
                 writeOperation(os, operation.toBinaryCode());
+                printVerilogInstruction(operation);
             }
+        }
+    }
+
+    private static void printVerilogInstruction(Operation jumpToMain) {
+        if (Compiler.WRITE_VERILOG_CODE) {
+            int first = jumpToMain.toBinaryCode() & 0xffff;
+            int second = (jumpToMain.toBinaryCode() & 0xffff0000) >> 16;
+
+            System.out.println("ram.putWordIntoStack(" + first + ");");
+            System.out.println("ram.putWordIntoStack(" + second + ");");
         }
     }
 

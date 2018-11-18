@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 public class Interpreter {
     private static int[] ops = new int[1024];
-    private static byte[] stack = new byte[4096]; // 4KB of stack
+    private static byte[] memory = new byte[32768];
 
     private static int opPointer = 0;
     private static int stackPointer = 0;
@@ -20,7 +20,8 @@ public class Interpreter {
 
     private static boolean needToRun = true;
 
-    public static final boolean debugInstructions = false;
+    public static final boolean debugInstructions = true;
+    public static final boolean debugInstructionNumbers = true;
     public static final boolean debugInstructionsState = false;
 
     public static void initInstructions() {
@@ -120,11 +121,14 @@ public class Interpreter {
             offset += 1;
         }
 
+        stackPointer = offset * 4;
+        System.out.println("Initial stack pointer in bytes: " + stackPointer);
+
         while (needToRun) {
             int op = ops[opPointer];
             Operation operation = Operation.fromBinaryCode(op);
 
-            if (debugInstructions)
+            if (debugInstructionNumbers)
                 System.out.println("executing " + opPointer + ": " + instructionNames.get(operation.code) + " " + operation.data);
 
             instructions.get(operation.code).execute(operation.data);
@@ -134,17 +138,22 @@ public class Interpreter {
     }
 
     public static int popWordFromStack() {
-        int result = ((stack[stackPointer - 2] & 0xff) << 8) | (stack[stackPointer - 1] & 0xff);
+        int result = ((memory[stackPointer - 2] & 0xff) << 8) | (memory[stackPointer - 1] & 0xff);
         stackPointer -= 2;
+
+
+//        if (debugInstructionsState)
+            System.out.println("Popped " + result);
+
         return result;
     }
 
     public static void putWordIntoStack(int word) {
-        if (debugInstructionsState)
+//        if (debugInstructionsState)
             System.out.println("Putting " + word);
 
-        stack[stackPointer] = (byte) ((word >> 8) & 0xff);
-        stack[stackPointer + 1] = (byte) ((word) & 0xff);
+        memory[stackPointer] = (byte) ((word >> 8) & 0xff);
+        memory[stackPointer + 1] = (byte) ((word) & 0xff);
         stackPointer += 2;
     }
 
@@ -153,15 +162,15 @@ public class Interpreter {
     }
 
     public static int getByteByAddress(int address) {
-        return stack[address];
+        return memory[address];
     }
 
     public static int getWordByAddress(int address) {
-        return ((stack[address] & 0xff) << 8) | (stack[address + 1] & 0xff);
+        return ((memory[address] & 0xff) << 8) | (memory[address + 1] & 0xff);
     }
 
     public static void putByteIntoStack(int b) {
-        stack[stackPointer] = (byte) b;
+        memory[stackPointer] = (byte) b;
         stackPointer++;
     }
 
@@ -182,18 +191,18 @@ public class Interpreter {
     }
 
     public static int popByteFromStack() {
-        int result = stack[stackPointer - 1];
+        int result = memory[stackPointer - 1];
         stackPointer -= 1;
         return result;
     }
 
     public static void writeByteToAddress(int value, int address) {
-        stack[address] = (byte) value;
+        memory[address] = (byte) value;
     }
 
     public static void writeWordToAddress(int value, int address) {
-        stack[address] = (byte) (value >> 8);
-        stack[address + 1] = (byte) (value & 0xff);
+        memory[address] = (byte) (value >> 8);
+        memory[address + 1] = (byte) (value & 0xff);
     }
 
     public static void stop() {

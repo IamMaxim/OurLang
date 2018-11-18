@@ -10,7 +10,9 @@ public class InstructionJif extends Instruction {
         if (Interpreter.debugInstructionsState)
             System.out.println("jif > " + first);
 
-        if (first != 0)
+        if (first != 0) {
             Interpreter.setOperationPointer(data);
+            System.out.println("Jumping to " + data);
+        }
     }
 }
